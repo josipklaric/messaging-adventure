@@ -1,48 +1,100 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
+using MessagingAdventure.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace MessagingAdventure.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiController]
+    [Route("api/[controller]/infobip")]
     public class HooksController: Controller
     {
-        public HooksController()
+        private readonly IConfiguration configuration;
+        private readonly ILogger<HooksController> logger;
+        private readonly MessagingAdventureRepository repository;
+
+        public HooksController(IConfiguration configuration, MessagingAdventureRepository repository)
         {
+            this.configuration = configuration;
+            this.repository = repository;
         }
 
-        // GET: api/values
-        [HttpGet]
-        public IEnumerable<string> Get()
+
+        [HttpPost("email-delivery-report")]
+        public async Task<IActionResult> ReceiveEmailDeliveryReport([FromBody] string data)
         {
-            return new string[] { "value1", "value2" };
+            if (data == null)
+                return Content("[No data]");
+
+            var serialized = JsonSerializer.Serialize(data);
+
+            var saveSuccess = await this.repository.SaveApiCall(new ApiCall()
+            {
+                Endpoint = "email/receive",
+                Content = serialized,
+                Date = DateTime.Now
+            });
+
+            return Content(serialized);
         }
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpPost("sms/receive")]
+        public async Task<IActionResult> ReceiveSmsAsync([FromBody] object data)
         {
-            return "value";
+            if (data == null)
+                return Content("[No data]");
+
+            var serialized = JsonSerializer.Serialize(data);
+
+            var saveSuccess = await this.repository.SaveApiCall(new ApiCall()
+            {
+                Endpoint = "sms/receive",
+                Content = serialized,
+                Date = DateTime.Now
+            });
+
+            return Content(serialized);
         }
 
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpPost("sms/report")]
+        public async Task<IActionResult> SmsReportAsync([FromBody] object report)
         {
+            if (report == null)
+                return Content("[No data]");
+
+            var serialized = JsonSerializer.Serialize(report);
+
+            var saveSuccess = await this.repository.SaveApiCall(new ApiCall()
+            {
+                Endpoint = "sms/report",
+                Content = serialized,
+                Date = DateTime.Now
+            });
+
+            return Content(serialized);
         }
 
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPost("email/report")]
+        public async Task<IActionResult> EmailReportAsync([FromBody] object report)
         {
-        }
+            if (report == null)
+                return Content("[No data]");
 
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            var serialized = JsonSerializer.Serialize(report);
+
+            var saveSuccess = await this.repository.SaveApiCall(new ApiCall()
+            {
+                Endpoint = "email/report",
+                Content = serialized,
+                Date = DateTime.Now
+            });
+
+            return Content(serialized);
         }
     }
 }
