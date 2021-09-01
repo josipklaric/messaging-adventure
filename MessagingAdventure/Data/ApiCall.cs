@@ -6,7 +6,7 @@ namespace MessagingAdventure.Data
     {
         public int Id { get; set; }
         public string Endpoint { get; set; }
-        public DateTime Date { get; set; }
-        public string Content { get; set; }
+        public DateTime Date { get; set; } = DateTime.UtcNow;
+        public string Content { get; set; } 
     }
 }

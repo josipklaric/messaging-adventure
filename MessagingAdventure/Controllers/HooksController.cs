@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 namespace MessagingAdventure.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/infobip")]
+    [Route("api/[controller]")]
     public class HooksController: Controller
     {
         private readonly IConfiguration configuration;
@@ -25,7 +25,7 @@ namespace MessagingAdventure.Controllers
         }
 
 
-        [HttpPost("email-delivery-report")]
+        [HttpPost("email/track")]
         public async Task<IActionResult> ReceiveEmailDeliveryReport([FromBody] string data)
         {
             if (data == null)
@@ -35,9 +35,8 @@ namespace MessagingAdventure.Controllers
 
             var saveSuccess = await this.repository.SaveApiCall(new ApiCall()
             {
-                Endpoint = "email/receive",
-                Content = serialized,
-                Date = DateTime.Now
+                Endpoint = "email/track",
+                Content = serialized
             });
 
             return Content(serialized);
@@ -54,44 +53,41 @@ namespace MessagingAdventure.Controllers
             var saveSuccess = await this.repository.SaveApiCall(new ApiCall()
             {
                 Endpoint = "sms/receive",
-                Content = serialized,
-                Date = DateTime.Now
+                Content = serialized
             });
 
             return Content(serialized);
         }
 
         [HttpPost("sms/report")]
-        public async Task<IActionResult> SmsReportAsync([FromBody] object report)
+        public async Task<IActionResult> SmsReportAsync([FromBody] object data)
         {
-            if (report == null)
+            if (data == null)
                 return Content("[No data]");
 
-            var serialized = JsonSerializer.Serialize(report);
+            var serialized = JsonSerializer.Serialize(data);
 
             var saveSuccess = await this.repository.SaveApiCall(new ApiCall()
             {
                 Endpoint = "sms/report",
-                Content = serialized,
-                Date = DateTime.Now
+                Content = serialized
             });
 
             return Content(serialized);
         }
 
         [HttpPost("email/report")]
-        public async Task<IActionResult> EmailReportAsync([FromBody] object report)
+        public async Task<IActionResult> EmailReportAsync([FromBody] object data)
         {
-            if (report == null)
+            if (data == null)
                 return Content("[No data]");
 
-            var serialized = JsonSerializer.Serialize(report);
+            var serialized = JsonSerializer.Serialize(data);
 
             var saveSuccess = await this.repository.SaveApiCall(new ApiCall()
             {
                 Endpoint = "email/report",
-                Content = serialized,
-                Date = DateTime.Now
+                Content = serialized
             });
 
             return Content(serialized);
